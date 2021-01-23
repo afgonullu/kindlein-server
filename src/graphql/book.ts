@@ -15,7 +15,7 @@ export const bookDefs = `
     author: String
   }
   
-  type Query {
+  extend type Query {
     books: [Book]
   }
 `;
