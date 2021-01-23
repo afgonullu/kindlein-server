@@ -20,7 +20,8 @@
     "quotes": [1, "double", { "allowTemplateLiterals": true }],
     "@typescript-eslint/quotes": [1, "double"],
     "import/no-extraneous-dependencies": 0,
-    "import/prefer-default-export": 0
+    "import/prefer-default-export": 0,
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }]
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
