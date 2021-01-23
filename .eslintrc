@@ -18,7 +18,9 @@
     "no-case-declarations": 0,
     "no-console": 1,
     "quotes": [1, "double", { "allowTemplateLiterals": true }],
-    "@typescript-eslint/quotes": [1, "double"]
+    "@typescript-eslint/quotes": [1, "double"],
+    "import/no-extraneous-dependencies": 0,
+    "import/prefer-default-export": 0
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
