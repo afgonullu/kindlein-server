@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/keyword-spacing */
-import { AuthenticationError } from "apollo-server-express";
+import { AuthenticationError, UserInputError } from "apollo-server-express";
 import { Child, IChild } from "../models/Child";
 import { IMoment, Moment } from "../models/Moment";
 import { checkAuthorization } from "../utils/helpers";
@@ -30,7 +30,7 @@ export const momentDefs = `#graphql
     title: String!
     body: String!
     createdAt: String!
-    createdBy: User!
+    createdBy: String!
     belongsTo: Child!
     momentDate: String!
     location: String!
@@ -140,10 +140,12 @@ export const momentResolvers = {
       const { id } = args;
 
       const token = checkAuthorization(context);
+      console.log(token.id);
 
       try {
         const moment = <IMoment>await Moment.findById(id);
-        if (moment?.createdBy.id === token.id) {
+        console.log(moment.createdBy);
+        if (parseInt(moment.createdBy, 10) === parseInt(token.id, 10)) {
           const returnedMoment = <IMoment>await moment.delete();
 
           const childInDb = <IChild>await Child.findById(returnedMoment.belongsTo);
@@ -154,6 +156,29 @@ export const momentResolvers = {
       } catch (error) {
         throw new Error(error);
       }
+    },
+    likeMoment: async (_root: any, args: { id: string }, context: { req: { headers: { authorization: string } } }) => {
+      const { id } = args;
+
+      const token = checkAuthorization(context);
+
+      const moment = await Moment.findById(id);
+
+      if (moment) {
+        if (moment.likes.find((like) => like.username === token.username)) {
+          // moment already liked by the user, unlike it
+          moment.likes = moment.likes.filter((like) => like.username !== token.username);
+        } else {
+          // not liked, like it
+          moment.likes.push({
+            username: token.username,
+            createdAt: new Date().toISOString(),
+          });
+        }
+        const returnedMoment = await moment.save();
+        return { success: true, message: "moment like/unlike", moment: returnedMoment };
+      }
+      throw new UserInputError("Moment not found");
     },
   },
 };

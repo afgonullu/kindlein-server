@@ -1,28 +1,24 @@
 import { Schema, model, Document } from "mongoose";
+// eslint-disable-next-line import/no-cycle
 import { IChild } from "./Child";
-import { IUser } from "./User";
 
 export interface IMoment extends Document {
   title: string;
   body: string;
   createdAt: string;
-  createdBy: IUser;
+  createdBy: string;
   belongsTo: IChild;
   momentDate: string;
   location: string;
-  comments: [
-    {
-      body: string;
-      username: string;
-      createdAt: string;
-    },
-  ];
-  likes: [
-    {
-      username: string;
-      createdAt: string;
-    },
-  ];
+  comments: {
+    body: string;
+    username: string;
+    createdAt: string;
+  }[];
+  likes: {
+    username: string;
+    createdAt: string;
+  }[];
 }
 
 // validation will be handled in graphql layer
@@ -33,7 +29,6 @@ const momentSchema = new Schema({
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: "User",
-    autopopulate: true,
   },
   belongsTo: {
     type: Schema.Types.ObjectId,
