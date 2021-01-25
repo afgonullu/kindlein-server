@@ -1,12 +1,12 @@
 import { Schema, model, Document } from "mongoose";
+// eslint-disable-next-line import/no-cycle
 import { IMoment } from "./Moment";
-import { IUser } from "./User";
 
 export interface IChild extends Document {
   name: string;
   birthDate: string;
   createdAt: string;
-  createdBy: IUser;
+  createdBy: string;
   moments: IMoment[];
 }
 
@@ -18,7 +18,6 @@ const childSchema = new Schema({
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: "User",
-    autopopulate: true,
   },
   moments: [
     {

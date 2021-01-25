@@ -9,7 +9,7 @@ export const childDefs = `#graphql
     name: String!
     birthDate: String!
     createdAt: String!
-    createdBy: User!
+    createdBy: String!
     #parent: String
     moments: [Moment]!
   }
@@ -45,6 +45,7 @@ export const childResolvers = {
 
       try {
         const children = await Child.find({ createdBy: userId });
+
         if (children) {
           return children;
         }
