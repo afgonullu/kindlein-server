@@ -103,7 +103,7 @@ export const childResolvers = {
         const child = <IChild>await Child.findById(id);
 
         if (parseInt(child.createdBy, 10) === parseInt(token.id, 10)) {
-          const returnedChild = <IChild>await child.delete();
+          const returnedChild = <IChild>await child.deleteOne();
           return { success: true, message: "child deleted successfully", child: returnedChild };
         }
         throw new AuthenticationError("Action not allowed");
