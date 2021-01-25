@@ -25,7 +25,7 @@ export const moments = [
   },
 ];
 
-export const momentDefs = `
+export const momentDefs = `#graphql
   type Moment {
     id: String!,
     date: String!,

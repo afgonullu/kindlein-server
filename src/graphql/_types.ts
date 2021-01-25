@@ -1,4 +1,4 @@
-export const BaseDefs = `
+export const BaseDefs = `#graphql
   type Query {
     _empty: String
   }

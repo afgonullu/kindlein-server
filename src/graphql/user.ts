@@ -3,7 +3,7 @@ import { RegisterInput } from "../utils/validators/validateRegisterInput";
 
 import { getUser, registerUser, loginUser } from "../services/userService";
 
-export const userDefs = `
+export const userDefs = `#graphql
   type User {
     id: ID!
     email: String!
