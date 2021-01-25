@@ -1,29 +1,8 @@
-export const moments = [
-  {
-    id: 1,
-    date: "2014-03-22",
-    title: "born today",
-    description: "my boy born this day around 17:30",
-    location: "frankfurt am main",
-    tags: ["magical", "historic"],
-  },
-  {
-    id: 2,
-    date: "2016-10-16",
-    title: "learned about dragons",
-    description: "Sümkürdükten sonra, anne genau wie eine drache dimi?",
-    location: "ankara",
-    tags: ["funny"],
-  },
-  {
-    id: 3,
-    date: "2017-05-08",
-    title: "sohbet etmeyi öğrenmiş",
-    description: "Rümüye diyor ki: yumü şobbet edelim mi; Ben muhammed mirza gönüllü 3 yaşındayım şen kaç yaşındasın",
-    location: "ankara",
-    tags: ["funny", "historic"],
-  },
-];
+/* eslint-disable @typescript-eslint/keyword-spacing */
+import { AuthenticationError } from "apollo-server-express";
+import { Child, IChild } from "../models/Child";
+import { IMoment, Moment } from "../models/Moment";
+import { checkAuthorization } from "../utils/helpers";
 
 export const momentDefs = `#graphql
   #type Tag {
@@ -65,7 +44,7 @@ export const momentDefs = `#graphql
   input MomentInput {
     title: String!
     body: String!
-    childId: String!
+    belongsTo: String!
     momentDate: String!
     location: String!
     #tags: [String]!
@@ -95,6 +74,86 @@ export const momentDefs = `#graphql
 
 export const momentResolvers = {
   Query: {
-    moments: () => moments,
+    moments: async () => {
+      try {
+        const moments = await Moment.find().sort({ createdAt: -1 });
+
+        if (moments) {
+          return moments;
+        }
+        throw new Error("No Moments found");
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    moment: async (_root: never, args: { id: string }) => {
+      const { id } = args;
+
+      try {
+        const moment = await Moment.findById(id);
+        if (moment) {
+          return moment;
+        }
+        throw new Error("No children found");
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+  },
+  Mutation: {
+    addMoment: async (
+      _root: never,
+      args: { momentInput: { title: string; body: string; momentDate: string; location: string; belongsTo: string } },
+      context: { req: { headers: { authorization: string } } },
+    ) => {
+      const { title, body, momentDate, location, belongsTo } = args.momentInput;
+      const token = checkAuthorization(context);
+
+      const childInDb = <IChild>await Child.findById(belongsTo);
+
+      const moment = new Moment({
+        title,
+        body,
+        momentDate: new Date(momentDate).toString(),
+        createdAt: new Date().toISOString(),
+        location,
+        belongsTo: <string>childInDb._id,
+        createdBy: <string>token.id,
+      });
+
+      const returnedMoment = await moment.save();
+      childInDb.moments.push(returnedMoment.id);
+      await childInDb.save();
+
+      return {
+        success: true,
+        message: "moment created",
+        moment: returnedMoment,
+        child: childInDb,
+      };
+    },
+    deleteMoment: async (
+      _root: any,
+      args: { id: string },
+      context: { req: { headers: { authorization: string } } },
+    ) => {
+      const { id } = args;
+
+      const token = checkAuthorization(context);
+
+      try {
+        const moment = <IMoment>await Moment.findById(id);
+        if (moment?.createdBy.id === token.id) {
+          const returnedMoment = <IMoment>await moment.delete();
+
+          const childInDb = <IChild>await Child.findById(returnedMoment.belongsTo);
+
+          return { success: true, message: "moment deleted", moment: returnedMoment, child: childInDb };
+        }
+        throw new AuthenticationError("Action not allowed");
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
   },
 };
