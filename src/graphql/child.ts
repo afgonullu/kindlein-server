@@ -44,7 +44,7 @@ export const childResolvers = {
       const { userId } = args;
 
       try {
-        const children = await Child.find({ createdBy: userId }).populate("createdBy");
+        const children = await Child.find({ createdBy: userId });
         if (children) {
           return children;
         }
@@ -57,7 +57,7 @@ export const childResolvers = {
       const { id } = args;
 
       try {
-        const child = await Child.findById(id).populate("createdBy");
+        const child = await Child.findById(id);
         if (child) {
           return child;
         }
