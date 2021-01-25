@@ -66,11 +66,15 @@ export const registerUser = async (registerInput: RegisterInput) => {
   const token = generateToken(returnedUser);
 
   return {
-    username: returnedUser.username,
-    email: returnedUser.email,
-    createdAt: returnedUser.createdAt,
-    token,
-    id: <string>returnedUser._id,
+    success: true,
+    message: "User registered, now logging in.",
+    user: {
+      username: returnedUser.username,
+      email: returnedUser.email,
+      createdAt: returnedUser.createdAt,
+      token,
+      id: <string>returnedUser._id,
+    },
   };
 };
 
@@ -100,10 +104,14 @@ export const loginUser = async (username: string, password: string) => {
   const token = generateToken(returnedUser);
 
   return {
-    username: returnedUser.username,
-    email: returnedUser.email,
-    createdAt: returnedUser.createdAt,
-    token,
-    id: <string>returnedUser._id,
+    success: true,
+    message: "successful login, now logging in.",
+    user: {
+      username: returnedUser.username,
+      email: returnedUser.email,
+      createdAt: returnedUser.createdAt,
+      token,
+      id: <string>returnedUser._id,
+    },
   };
 };
