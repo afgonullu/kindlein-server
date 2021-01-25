@@ -19,13 +19,19 @@ export const userDefs = `#graphql
     email: String!
   }
 
+  type UserResponse {
+    success: Boolean!
+    message: String
+    user: User!
+  }
+
   extend type Query {
     me(userId: ID!): User!
   }
 
   extend type Mutation {
-    register(registerInput: RegisterInput): User!
-    login(username:String!, password:String!): User!
+    register(registerInput: RegisterInput): UserResponse!
+    login(username:String!, password:String!): UserResponse!
   }
 `;
 

@@ -26,17 +26,66 @@ export const moments = [
 ];
 
 export const momentDefs = `#graphql
+  #type Tag {
+  #  id: ID!
+  #  body: String!
+  #  createdAt: String!
+  #  moments: [Moment]!
+  #}
+
   type Moment {
-    id: String!,
-    date: String!,
-    title: String!,
-    description: String!,
-    location: String!,
-    tags: [String],
+    id: ID!
+    title: String!
+    body: String!
+    createdAt: String!
+    createdBy: User!
+    belongsTo: Child!
+    momentDate: String!
+    location: String!
+    #tags: [Tag]!
+    comments: [{
+      id: ID!
+      body: String!
+      createdAt: String!
+      username: String!
+    }]!
+    likes: [{
+      id: ID!
+      createdAt: String!
+      username: String!
+    }]!
+    likeCount: Int!
+    commentCount: Int!
+  }
+
+  input MomentInput {
+    title: String!
+    body: String!
+    childId: String!
+    momentDate: String!
+    location: String!
+    #tags: [String]!
+  }
+
+  type MomentResponse {
+    success: Boolean!
+    message: String
+    moment: Moment!
+    child: Child
+    #tags: [Tag]
   }
   
   extend type Query {
-    moments: [Moment]
+    moments: [Moment]!
+    moment(id: ID!): Moment
+  }
+
+  extend type Mutation {
+    addMoment(momentInput: MomentInput!): MomentResponse!
+    deleteMoment(id: ID!): MomentResponse!
+    likeMoment(id: ID!): MomentResponse!
+    addComment(id: ID!, body: String!): MomentResponse!
+    deleteComment(id: ID!, momentId: ID!): Moment!
   }
 `;
 
