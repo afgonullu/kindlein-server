@@ -33,7 +33,20 @@ export const momentDefs = `#graphql
   #  moments: [Moment]!
   #}
 
-  type Moment {
+  type Comment {
+    id: ID!
+    body: String!
+    createdAt: String!
+    username: String!
+  }
+
+  type Like {
+    id: ID!
+    createdAt: String!
+    username: String!
+  }
+
+  extend type Moment {
     id: ID!
     title: String!
     body: String!
@@ -43,17 +56,8 @@ export const momentDefs = `#graphql
     momentDate: String!
     location: String!
     #tags: [Tag]!
-    comments: [{
-      id: ID!
-      body: String!
-      createdAt: String!
-      username: String!
-    }]!
-    likes: [{
-      id: ID!
-      createdAt: String!
-      username: String!
-    }]!
+    comments: [Comment]!
+    likes: [Like]!
     likeCount: Int!
     commentCount: Int!
   }
@@ -70,7 +74,7 @@ export const momentDefs = `#graphql
   type MomentResponse {
     success: Boolean!
     message: String
-    moment: Moment!
+    moment: Moment
     child: Child
     #tags: [Tag]
   }

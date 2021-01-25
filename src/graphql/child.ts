@@ -1,5 +1,5 @@
 export const childDefs = `#graphql
-  type Child {
+  extend type Child {
     id: ID!
     name: String!
     birthDate: String!
@@ -18,7 +18,7 @@ export const childDefs = `#graphql
   type ChildResponse {
     success: Boolean!
     message: String
-    child: Child!
+    child: Child
     moments: [Moment]
   }
   

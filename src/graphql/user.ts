@@ -4,7 +4,7 @@ import { RegisterInput } from "../utils/validators/validateRegisterInput";
 import { getUser, registerUser, loginUser } from "../services/userService";
 
 export const userDefs = `#graphql
-  type User {
+  extend type User {
     id: ID!
     email: String!
     username: String!
@@ -22,7 +22,7 @@ export const userDefs = `#graphql
   type UserResponse {
     success: Boolean!
     message: String
-    user: User!
+    user: User
   }
 
   extend type Query {
