@@ -11,6 +11,7 @@ export interface IMoment extends Document {
   momentDate: string;
   location: string;
   comments: {
+    id?: string;
     body: string;
     username: string;
     createdAt: string;

@@ -61,7 +61,6 @@ export const deleteMoment = async (id: string, tokenId: string): Promise<MomentR
   try {
     // eslint-disable-next-line @typescript-eslint/keyword-spacing
     const moment = <IMoment>await Moment.findById(id);
-    console.log(moment.createdBy);
     if (parseInt(moment.createdBy, 10) === parseInt(tokenId, 10)) {
       // eslint-disable-next-line @typescript-eslint/keyword-spacing
       const returnedMoment = <IMoment>await moment.delete();
@@ -95,4 +94,47 @@ export const likeMoment = async (id: string, username: string): Promise<MomentRe
     return { success: true, message: "moment like/unlike", moment: returnedMoment };
   }
   throw new UserInputError("Moment not found");
+};
+
+export const addComment = async (id: string, body: string, username: string): Promise<MomentResponse> => {
+  // validate input
+  if (body.trim() === "") {
+    throw new UserInputError("Empty Comment", {
+      errors: { body: "Comment body cannot be empty" },
+    });
+  }
+
+  const moment = await Moment.findById(id);
+
+  if (moment) {
+    moment.comments.unshift({
+      body,
+      username,
+      createdAt: new Date().toISOString(),
+    });
+
+    const returnedMoment = await moment.save();
+    return { success: true, message: "comment created", moment: returnedMoment };
+  }
+  throw new UserInputError("Moment not found");
+};
+
+export const deleteComment = async (id: string, momentId: string, username: string): Promise<IMoment> => {
+  const moment = await Moment.findById(momentId);
+
+  if (moment) {
+    const commentIndex = moment.comments.findIndex((c) => c.id === id);
+    if (commentIndex === -1) {
+      throw new UserInputError("Comment not found");
+    }
+
+    if (moment.comments[commentIndex].username === username) {
+      moment.comments.splice(commentIndex, 1);
+      const returnedMoment = await moment.save();
+      return returnedMoment;
+    }
+    throw new AuthenticationError("Action not allowed");
+  } else {
+    throw new UserInputError("Moment not found");
+  }
 };

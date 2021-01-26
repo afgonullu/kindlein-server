@@ -1,7 +1,15 @@
 import { IChild } from "../models/Child";
 import { IMoment } from "../models/Moment";
 // eslint-disable-next-line import/no-cycle
-import { addMoment, deleteMoment, getMoment, getMoments, likeMoment } from "../services/momentService";
+import {
+  addComment,
+  addMoment,
+  deleteComment,
+  deleteMoment,
+  getMoment,
+  getMoments,
+  likeMoment,
+} from "../services/momentService";
 import { checkAuthorization } from "../utils/helpers";
 
 export interface MomentResponse {
@@ -17,6 +25,10 @@ export interface MomentInput {
   belongsTo: string;
   momentDate: string;
   location: string;
+}
+
+export interface ContextInput {
+  req: { headers: { authorization: string } };
 }
 
 export const momentDefs = `#graphql
@@ -96,29 +108,39 @@ export const momentResolvers = {
     addMoment: async (
       _root: never,
       args: { momentInput: MomentInput },
-      context: { req: { headers: { authorization: string } } },
+      context: ContextInput,
     ): Promise<MomentResponse> => {
       const token = checkAuthorization(context);
 
       return addMoment(args.momentInput, token.id);
     },
-    deleteMoment: async (
-      _root: never,
-      args: { id: string },
-      context: { req: { headers: { authorization: string } } },
-    ): Promise<MomentResponse> => {
+    deleteMoment: async (_root: never, args: { id: string }, context: ContextInput): Promise<MomentResponse> => {
       const token = checkAuthorization(context);
 
       return deleteMoment(args.id, token.id);
     },
-    likeMoment: async (
-      _root: never,
-      args: { id: string },
-      context: { req: { headers: { authorization: string } } },
-    ): Promise<MomentResponse> => {
+    likeMoment: async (_root: never, args: { id: string }, context: ContextInput): Promise<MomentResponse> => {
       const token = checkAuthorization(context);
 
       return likeMoment(args.id, token.username);
+    },
+    addComment: async (
+      _root: never,
+      args: { id: string; body: string },
+      context: ContextInput,
+    ): Promise<MomentResponse> => {
+      const token = checkAuthorization(context);
+
+      return addComment(args.id, args.body, token.username);
+    },
+    deleteComment: async (
+      _root: never,
+      args: { id: string; momentId: string },
+      context: ContextInput,
+    ): Promise<IMoment> => {
+      const token = checkAuthorization(context);
+
+      return deleteComment(args.id, args.momentId, token.username);
     },
   },
 };
