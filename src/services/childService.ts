@@ -2,6 +2,7 @@
 import { AuthenticationError } from "apollo-server-express";
 import { ChildResponse } from "../graphql/child";
 import { Child, IChild } from "../models/Child";
+import { Moment } from "../models/Moment";
 
 export const getChildren = async (userId: string): Promise<IChild[]> => {
   try {
@@ -55,6 +56,7 @@ export const deleteChild = async (id: string, tokenId: string): Promise<ChildRes
     const child = <IChild>await Child.findById(id);
 
     if (parseInt(child.createdBy, 10) === parseInt(tokenId, 10)) {
+      await Moment.deleteMany({ belongsTo: <string>child.id });
       const returnedChild = <IChild>await child.deleteOne();
       return { success: true, message: "child deleted successfully", child: returnedChild };
     }

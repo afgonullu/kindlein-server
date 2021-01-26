@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/keyword-spacing */
-import { AuthenticationError, UserInputError } from "apollo-server-express";
-import { Child, IChild } from "../models/Child";
-import { IMoment, Moment } from "../models/Moment";
+import { IChild } from "../models/Child";
+import { IMoment } from "../models/Moment";
 import { addMoment, deleteMoment, getMoment, getMoments, likeMoment } from "../services/momentService";
 import { checkAuthorization } from "../utils/helpers";
 
