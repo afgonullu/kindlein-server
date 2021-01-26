@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/keyword-spacing */
 import { IChild } from "../models/Child";
 import { IMoment } from "../models/Moment";
+// eslint-disable-next-line import/no-cycle
 import { addMoment, deleteMoment, getMoment, getMoments, likeMoment } from "../services/momentService";
 import { checkAuthorization } from "../utils/helpers";
 

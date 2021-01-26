@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/keyword-spacing */
 import { AuthenticationError } from "apollo-server-express";
+// eslint-disable-next-line import/no-cycle
 import { ChildResponse } from "../graphql/child";
 import { Child, IChild } from "../models/Child";
 import { Moment } from "../models/Moment";
@@ -53,10 +53,12 @@ export const addChild = async (
 
 export const deleteChild = async (id: string, tokenId: string): Promise<ChildResponse> => {
   try {
+    // eslint-disable-next-line @typescript-eslint/keyword-spacing
     const child = <IChild>await Child.findById(id);
 
     if (parseInt(child.createdBy, 10) === parseInt(tokenId, 10)) {
       await Moment.deleteMany({ belongsTo: <string>child.id });
+      // eslint-disable-next-line @typescript-eslint/keyword-spacing
       const returnedChild = <IChild>await child.deleteOne();
       return { success: true, message: "child deleted successfully", child: returnedChild };
     }
