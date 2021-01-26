@@ -1,6 +1,3 @@
-import { IChild } from "../models/Child";
-import { IMoment } from "../models/Moment";
-// eslint-disable-next-line import/no-cycle
 import {
   addComment,
   addMoment,
@@ -11,25 +8,7 @@ import {
   likeMoment,
 } from "../services/momentService";
 import { checkAuthorization } from "../utils/helpers";
-
-export interface MomentResponse {
-  success: boolean;
-  message: string;
-  moment?: IMoment;
-  child?: IChild;
-}
-
-export interface MomentInput {
-  title: string;
-  body: string;
-  belongsTo: string;
-  momentDate: string;
-  location: string;
-}
-
-export interface ContextInput {
-  req: { headers: { authorization: string } };
-}
+import { ContextInput, IMoment, MomentInput, MomentResponse } from "../utils/interfaces";
 
 export const momentDefs = `#graphql
   #type Tag {

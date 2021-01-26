@@ -1,11 +1,5 @@
-import { Schema, model, Document } from "mongoose";
-
-export interface IUser extends Document {
-  username: string;
-  password: string;
-  email: string;
-  createdAt: string;
-}
+import { Schema, model } from "mongoose";
+import { IUser } from "../utils/interfaces";
 
 // validation will be handled in graphql layer
 const userSchema = new Schema({

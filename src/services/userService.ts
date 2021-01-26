@@ -2,10 +2,11 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { UserInputError } from "apollo-server-express";
 
-import { User, IUser } from "../models/User";
+import { User } from "../models/User";
 import { RegisterInput, validateRegisterInput } from "../utils/validators/validateRegisterInput";
 import { SECRET } from "../utils/config";
 import { validateLoginInput } from "../utils/validators/validateLoginInput";
+import { IUser } from "../utils/interfaces";
 
 const generateToken = (user: IUser) =>
   jwt.sign(

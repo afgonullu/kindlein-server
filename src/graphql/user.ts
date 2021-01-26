@@ -1,7 +1,7 @@
-import { IUser } from "../models/User";
 import { RegisterInput } from "../utils/validators/validateRegisterInput";
 
 import { getUser, registerUser, loginUser } from "../services/userService";
+import { IUser } from "../utils/interfaces";
 
 export const userDefs = `#graphql
   extend type User {

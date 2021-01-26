@@ -1,8 +1,7 @@
 import { AuthenticationError, UserInputError } from "apollo-server-express";
-// eslint-disable-next-line import/no-cycle
-import { MomentInput, MomentResponse } from "../graphql/moment";
-import { Child, IChild } from "../models/Child";
-import { IMoment, Moment } from "../models/Moment";
+import { Child } from "../models/Child";
+import { Moment } from "../models/Moment";
+import { IChild, IMoment, MomentInput, MomentResponse } from "../utils/interfaces";
 
 export const getMoments = async (): Promise<IMoment[]> => {
   try {

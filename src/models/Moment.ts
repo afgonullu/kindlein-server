@@ -1,26 +1,5 @@
-import { Schema, model, Document } from "mongoose";
-// eslint-disable-next-line import/no-cycle
-import { IChild } from "./Child";
-
-export interface IMoment extends Document {
-  title: string;
-  body: string;
-  createdAt: string;
-  createdBy: string;
-  belongsTo: IChild;
-  momentDate: string;
-  location: string;
-  comments: {
-    id?: string;
-    body: string;
-    username: string;
-    createdAt: string;
-  }[];
-  likes: {
-    username: string;
-    createdAt: string;
-  }[];
-}
+import { Schema, model } from "mongoose";
+import { IMoment } from "../utils/interfaces";
 
 // validation will be handled in graphql layer
 const momentSchema = new Schema({

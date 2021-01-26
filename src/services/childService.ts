@@ -1,8 +1,7 @@
 import { AuthenticationError } from "apollo-server-express";
-// eslint-disable-next-line import/no-cycle
-import { ChildResponse } from "../graphql/child";
-import { Child, IChild } from "../models/Child";
+import { Child } from "../models/Child";
 import { Moment } from "../models/Moment";
+import { ChildResponse, IChild } from "../utils/interfaces";
 
 export const getChildren = async (userId: string): Promise<IChild[]> => {
   try {

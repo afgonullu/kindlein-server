@@ -1,15 +1,6 @@
-import { IChild } from "../models/Child";
-import { IMoment } from "../models/Moment";
-// eslint-disable-next-line import/no-cycle
 import { addChild, deleteChild, getChild, getChildren } from "../services/childService";
 import { checkAuthorization } from "../utils/helpers";
-
-export interface ChildResponse {
-  success: boolean;
-  message: string;
-  child?: IChild;
-  moments?: IMoment[];
-}
+import { ChildResponse, ContextInput, IChild } from "../utils/interfaces";
 
 export const childDefs = `#graphql
   extend type Child {
@@ -62,17 +53,13 @@ export const childResolvers = {
     addChild: async (
       _root: never,
       args: { childInput: { name: string; birthDate: string } },
-      context: { req: { headers: { authorization: string } } },
+      context: ContextInput,
     ): Promise<ChildResponse> => {
       const token = checkAuthorization(context);
 
       return addChild(args.childInput, token.id);
     },
-    deleteChild: async (
-      _root: never,
-      args: { id: string },
-      context: { req: { headers: { authorization: string } } },
-    ): Promise<ChildResponse> => {
+    deleteChild: async (_root: never, args: { id: string }, context: ContextInput): Promise<ChildResponse> => {
       const token = checkAuthorization(context);
 
       return deleteChild(args.id, token.id);
