@@ -2,7 +2,23 @@
 import { AuthenticationError, UserInputError } from "apollo-server-express";
 import { Child, IChild } from "../models/Child";
 import { IMoment, Moment } from "../models/Moment";
+import { addMoment, deleteMoment, getMoment, getMoments, likeMoment } from "../services/momentService";
 import { checkAuthorization } from "../utils/helpers";
+
+export interface MomentResponse {
+  success: boolean;
+  message: string;
+  moment?: IMoment;
+  child?: IChild;
+}
+
+export interface MomentInput {
+  title: string;
+  body: string;
+  belongsTo: string;
+  momentDate: string;
+  location: string;
+}
 
 export const momentDefs = `#graphql
   #type Tag {
@@ -74,111 +90,36 @@ export const momentDefs = `#graphql
 
 export const momentResolvers = {
   Query: {
-    moments: async () => {
-      try {
-        const moments = await Moment.find().sort({ createdAt: -1 });
-
-        if (moments) {
-          return moments;
-        }
-        throw new Error("No Moments found");
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-    moment: async (_root: never, args: { id: string }) => {
-      const { id } = args;
-
-      try {
-        const moment = await Moment.findById(id);
-        if (moment) {
-          return moment;
-        }
-        throw new Error("No children found");
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
+    moments: async (): Promise<IMoment[]> => getMoments(),
+    moment: async (_root: never, args: { id: string }): Promise<IMoment> => getMoment(args.id),
   },
   Mutation: {
     addMoment: async (
       _root: never,
-      args: { momentInput: { title: string; body: string; momentDate: string; location: string; belongsTo: string } },
+      args: { momentInput: MomentInput },
       context: { req: { headers: { authorization: string } } },
-    ) => {
-      const { title, body, momentDate, location, belongsTo } = args.momentInput;
+    ): Promise<MomentResponse> => {
       const token = checkAuthorization(context);
 
-      const childInDb = <IChild>await Child.findById(belongsTo);
-
-      const moment = new Moment({
-        title,
-        body,
-        momentDate: new Date(momentDate).toString(),
-        createdAt: new Date().toISOString(),
-        location,
-        belongsTo: <string>childInDb._id,
-        createdBy: <string>token.id,
-      });
-
-      const returnedMoment = await moment.save();
-      childInDb.moments.push(returnedMoment.id);
-      await childInDb.save();
-
-      return {
-        success: true,
-        message: "moment created",
-        moment: returnedMoment,
-        child: childInDb,
-      };
+      return addMoment(args.momentInput, token.id);
     },
     deleteMoment: async (
-      _root: any,
+      _root: never,
       args: { id: string },
       context: { req: { headers: { authorization: string } } },
-    ) => {
-      const { id } = args;
-
+    ): Promise<MomentResponse> => {
       const token = checkAuthorization(context);
-      console.log(token.id);
 
-      try {
-        const moment = <IMoment>await Moment.findById(id);
-        console.log(moment.createdBy);
-        if (parseInt(moment.createdBy, 10) === parseInt(token.id, 10)) {
-          const returnedMoment = <IMoment>await moment.delete();
-
-          const childInDb = <IChild>await Child.findById(returnedMoment.belongsTo);
-
-          return { success: true, message: "moment deleted", moment: returnedMoment, child: childInDb };
-        }
-        throw new AuthenticationError("Action not allowed");
-      } catch (error) {
-        throw new Error(error);
-      }
+      return deleteMoment(args.id, token.id);
     },
-    likeMoment: async (_root: any, args: { id: string }, context: { req: { headers: { authorization: string } } }) => {
-      const { id } = args;
-
+    likeMoment: async (
+      _root: never,
+      args: { id: string },
+      context: { req: { headers: { authorization: string } } },
+    ): Promise<MomentResponse> => {
       const token = checkAuthorization(context);
 
-      const moment = await Moment.findById(id);
-
-      if (moment) {
-        if (moment.likes.find((like) => like.username === token.username)) {
-          // moment already liked by the user, unlike it
-          moment.likes = moment.likes.filter((like) => like.username !== token.username);
-        } else {
-          // not liked, like it
-          moment.likes.push({
-            username: token.username,
-            createdAt: new Date().toISOString(),
-          });
-        }
-        const returnedMoment = await moment.save();
-        return { success: true, message: "moment like/unlike", moment: returnedMoment };
-      }
-      throw new UserInputError("Moment not found");
+      return likeMoment(args.id, token.username);
     },
   },
 };
