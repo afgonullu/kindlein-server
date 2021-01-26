@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/keyword-spacing */
-import { AuthenticationError } from "apollo-server-express";
-import { Child, IChild } from "../models/Child";
+import { IChild } from "../models/Child";
+import { IMoment } from "../models/Moment";
+import { addChild, deleteChild, getChild, getChildren } from "../services/childService";
 import { checkAuthorization } from "../utils/helpers";
+
+export interface ChildResponse {
+  success: boolean;
+  message: string;
+  child?: IChild;
+  moments?: IMoment[];
+}
 
 export const childDefs = `#graphql
   extend type Child {
@@ -40,32 +48,14 @@ export const childDefs = `#graphql
 
 export const childResolvers = {
   Query: {
-    children: async (_root: never, args: { userId: string }) => {
+    children: async (_root: never, args: { userId: string }): Promise<IChild[]> => {
       const { userId } = args;
-
-      try {
-        const children = await Child.find({ createdBy: userId });
-
-        if (children) {
-          return children;
-        }
-        throw new Error("No children found");
-      } catch (error) {
-        throw new Error(error);
-      }
+      return getChildren(userId);
     },
-    child: async (_root: never, args: { id: string }) => {
+    child: async (_root: never, args: { id: string }): Promise<IChild> => {
       const { id } = args;
 
-      try {
-        const child = await Child.findById(id);
-        if (child) {
-          return child;
-        }
-        throw new Error("No children found");
-      } catch (error) {
-        throw new Error(error);
-      }
+      return getChild(id);
     },
   },
   Mutation: {
@@ -73,44 +63,19 @@ export const childResolvers = {
       _root: never,
       args: { childInput: { name: string; birthDate: string } },
       context: { req: { headers: { authorization: string } } },
-    ) => {
-      const { name, birthDate } = args.childInput;
+    ): Promise<ChildResponse> => {
       const token = checkAuthorization(context);
 
-      const child = new Child({
-        name,
-        birthDate: new Date(birthDate).toString(),
-        createdAt: new Date().toISOString(),
-        createdBy: <string>token.id,
-      });
-
-      const returnedChild = await child.save();
-
-      return {
-        success: true,
-        message: "child created successfully",
-        child: returnedChild,
-      };
+      return addChild(args.childInput, token.id);
     },
     deleteChild: async (
       _root: never,
       args: { id: string },
       context: { req: { headers: { authorization: string } } },
-    ) => {
-      const { id } = args;
+    ): Promise<ChildResponse> => {
       const token = checkAuthorization(context);
 
-      try {
-        const child = <IChild>await Child.findById(id);
-
-        if (parseInt(child.createdBy, 10) === parseInt(token.id, 10)) {
-          const returnedChild = <IChild>await child.deleteOne();
-          return { success: true, message: "child deleted successfully", child: returnedChild };
-        }
-        throw new AuthenticationError("Action not allowed");
-      } catch (error) {
-        throw new Error(error);
-      }
+      return deleteChild(args.id, token.id);
     },
   },
 };
