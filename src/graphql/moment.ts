@@ -79,6 +79,10 @@ export const momentDefs = `#graphql
 `;
 
 export const momentResolvers = {
+  Moment: {
+    likeCount: (root: { likes: string | any[] }) => root.likes.length,
+    commentCount: (root: { comments: string | any[] }) => root.comments.length,
+  },
   Query: {
     moments: async (): Promise<IMoment[]> => getMoments(),
     moment: async (_root: never, args: { id: string }): Promise<IMoment> => getMoment(args.id),
