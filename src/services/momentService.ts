@@ -103,17 +103,19 @@ export const addComment = async (id: string, body: string, username: string): Pr
     });
   }
 
+  const newComment = {
+    body,
+    username,
+    createdAt: new Date().toISOString(),
+  };
+
   const moment = await Moment.findById(id);
 
   if (moment) {
-    moment.comments.unshift({
-      body,
-      username,
-      createdAt: new Date().toISOString(),
-    });
+    moment.comments.unshift(newComment);
 
     const returnedMoment = await moment.save();
-    return { success: true, message: "comment created", moment: returnedMoment };
+    return { success: true, message: "comment created", moment: returnedMoment, comment: newComment };
   }
   throw new UserInputError("Moment not found");
 };

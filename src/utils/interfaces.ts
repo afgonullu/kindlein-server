@@ -1,3 +1,4 @@
+import { PubSub } from "apollo-server-express";
 import { Document } from "mongoose";
 
 export interface IUser extends Document {
@@ -47,6 +48,11 @@ export interface MomentResponse {
   message: string;
   moment?: IMoment;
   child?: IChild;
+  comment?: {
+    body: string;
+    username: string;
+    createdAt: string;
+  };
 }
 
 export interface MomentInput {
@@ -59,4 +65,5 @@ export interface MomentInput {
 
 export interface ContextInput {
   req: { headers: { authorization: string } };
+  pubsub: PubSub;
 }

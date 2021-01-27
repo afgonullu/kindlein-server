@@ -61,6 +61,7 @@ export const momentDefs = `#graphql
     message: String
     moment: Moment
     child: Child
+    comment: Comment
     #tags: [Tag]
   }
   
@@ -75,6 +76,10 @@ export const momentDefs = `#graphql
     likeMoment(id: ID!): MomentResponse!
     addComment(id: ID!, body: String!): MomentResponse!
     deleteComment(id: ID!, momentId: ID!): Moment!
+  }
+
+  extend type Subscription {
+    newComment: Moment!
   }
 `;
 
@@ -114,7 +119,12 @@ export const momentResolvers = {
     ): Promise<MomentResponse> => {
       const token = checkAuthorization(context);
 
-      return addComment(args.id, args.body, token.username);
+      const result = await addComment(args.id, args.body, token.username);
+
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      context.pubsub.publish("NEW_COMMENT", { newComment: result.moment });
+
+      return result;
     },
     deleteComment: async (
       _root: never,
@@ -124,6 +134,12 @@ export const momentResolvers = {
       const token = checkAuthorization(context);
 
       return deleteComment(args.id, args.momentId, token.username);
+    },
+  },
+  Subscription: {
+    newComment: {
+      // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+      subscribe: (_root: never, _args: never, context: ContextInput) => context.pubsub.asyncIterator("NEW_COMMENT"),
     },
   },
 };
